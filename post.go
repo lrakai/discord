@@ -7,20 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func Post(discordWebhook string, username string, content string) bool {
-	truncated := false
 	client := new(http.Client)
-	if len(content) >= 1850 { // discord content limit is 2000
-		log.Printf("Content is too long (%d), truncating", len(content))
-		content = content[:1850]
-		content = strings.TrimRight(content, "\\")
-		// prepend TRUNCATED to the content
-		content = fmt.Sprintf("TRUNCATED\n%s", content)
-		truncated = true
-	}
+	content, truncated := truncateContent(content)
 	encodedContent, err := json.Marshal(content)
 	if err != nil {
 		log.Fatal(err)

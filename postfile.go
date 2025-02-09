@@ -11,9 +11,10 @@ import (
 	"os"
 )
 
-func PostFile(discordWebhook string, username string, filePath string, friendlyName string) {
+func PostFile(discordWebhook string, username string, filePath string, message string) {
+	content, _ := truncateContent(message)
 	client := new(http.Client)
-	b, w := createMultipartFormDataWithPayload("Document", filePath, username, fmt.Sprintf("%s attached", friendlyName))
+	b, w := createMultipartFormDataWithPayload("Document", filePath, username, fmt.Sprintf("%s attached", content))
 
 	req, err := http.NewRequest("POST", discordWebhook, &b)
 	if err != nil {
@@ -28,9 +29,9 @@ func PostFile(discordWebhook string, username string, filePath string, friendlyN
 	if resp.StatusCode != 204 {
 		body, _ := io.ReadAll(resp.Body)
 		log.Println(string(body))
-		log.Printf("Uploaded %s to discord. Response status code is not 204 (status code %d)", friendlyName, resp.StatusCode)
+		log.Printf("Uploaded %s to discord. Response status code is not 204 (status code %d)", message, resp.StatusCode)
 	} else {
-		log.Printf("Successfully uploaded %s to discord", friendlyName)
+		log.Printf("Successfully uploaded %s to discord", message)
 	}
 }
 
